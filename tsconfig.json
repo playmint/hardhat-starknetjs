@@ -1,0 +1,16 @@
+{
+    "compilerOptions": {
+        "outDir": "lib",
+        "rootDir": "src",
+        "declaration": true,
+        "declarationMap": true,
+        "esModuleInterop": true,
+        "target": "es2020",
+        "module": "CommonJS",
+        "noFallthroughCasesInSwitch": true,
+        "noImplicitAny": true,
+        "noUnusedLocals": true,
+        "sourceMap": true,
+        "strict": true
+    }
+}
