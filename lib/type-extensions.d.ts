@@ -30,6 +30,7 @@ declare module "hardhat/types/runtime" {
         starknet: {
             provider: Provider;
         };
+        getContractFactory(contractName: string): void;
     }
 }
 export {};

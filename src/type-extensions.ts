@@ -36,6 +36,8 @@ declare module "hardhat/types/config" {
 declare module "hardhat/types/runtime"
 {
     interface HardhatRuntimeEnvironment {
-        starknet: { provider: Provider }
+        starknet: { provider: Provider };
+
+        getContractFactory(contractName: string): void;
     }
 }

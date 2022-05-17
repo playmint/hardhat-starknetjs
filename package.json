@@ -1,15 +1,16 @@
 {
-    "name": "@anders-t/hardhat-starknetjs",
+    "name": "@playmint/hardhat-starknetjs",
     "version": "0.1.0",
     "description": "Plugin for using Starknet.js in Hardhat projects.",
     "main": "lib/index.js",
     "devDependencies": {
         "@types/elliptic": "^6.4.14",
         "@types/mocha": "^9.1.1",
+        "hardhat": "^2.9.5",
+        "starknet": "^3.9.0",
         "typescript": "^4.6.4"
     },
-    "dependencies": {
-        "hardhat": "^2.9.3",
-        "starknet": "^3.9.0"
+    "peerDependencies": {
+        "hardhat": "^2.9.5"
     }
 }
