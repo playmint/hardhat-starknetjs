@@ -1,6 +1,6 @@
 import "hardhat/types/config"
 import "hardhat/types/runtime";
-import { Provider } from "starknet";
+import { Provider, ContractFactory } from "starknet";
 
 
 type StarknetNetworkConfig = {
@@ -13,31 +13,26 @@ type StarknetNetworksConfig = {
     [id: string]: StarknetNetworkConfig
 };
 
-type StarknetUserConfig = {
-    network?: string;
-    networks?: StarknetNetworksConfig
-};
-
-type StarknetConfig = {
-    network: string;
-    networks: StarknetNetworksConfig;
-}
-
 declare module "hardhat/types/config" {
-    export interface HardhatConfig {
-        starknet: StarknetConfig;
+    export interface HardhatUserConfig {
+        starknetjs?: {
+            networks?: StarknetNetworksConfig;
+        }
     }
 
-    export interface HardhatUserConfig {
-        starknet?: StarknetUserConfig;
+    export interface HardhatConfig {
+        starknetjs: {
+            networks: StarknetNetworksConfig;
+        }
     }
 }
 
 declare module "hardhat/types/runtime"
 {
     interface HardhatRuntimeEnvironment {
-        starknet: { provider: Provider };
-
-        getContractFactory(contractName: string): void;
+        starknetjs: {
+            provider: Provider;
+            getContractFactory(contractName: string): Promise<ContractFactory>;
+        }
     }
 }
