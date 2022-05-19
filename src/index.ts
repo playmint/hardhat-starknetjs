@@ -133,28 +133,35 @@ async function readArtifact(hre: HardhatRuntimeEnvironment, contractName: string
         artifactsCache = await getFilesInDirRecursively(hre.config.paths.starknetArtifacts);
     }
 
-    const cairoFilename = contractName.endsWith(".cairo") ? contractName : `${contractName}.cairo`;
-    const jsonFilename = `${cairoFilename.substring(0, cairoFilename.length - 6)}.json`;
+    let searchPaths = [];
+    if (contractName.endsWith(".json")) // already full path to json file
+    {
+        searchPaths.push(contractName);
+    }
+    else {
+        // attempt to look in path/contractName.cairo/contractName.json
+        const cairoFilename = contractName.endsWith(".cairo") ? contractName : `${contractName}.cairo`;
+        // if that fails we just try path/contractName.json
+        const jsonFilename = `${cairoFilename.substring(0, cairoFilename.length - 6)}.json`;
 
-    // first try path/file.cairo/file.json
-    let artifact = searchArtifacts(artifactsCache, `${cairoFilename}/${path.basename(jsonFilename)}`);
-
-    // then try path/file.json
-    if (!artifact) {
-        artifact = searchArtifacts(artifactsCache, jsonFilename);
+        searchPaths.push(`${cairoFilename}/${path.basename(jsonFilename)}`);
+        searchPaths.push(jsonFilename);
     }
 
-    if (artifact) {
-        return new Promise<CompiledContract>((resolve, reject) => {
-            fs.readFile(artifact!, (err, data) => {
-                if (err) {
-                    reject(err);
-                }
-                else {
-                    resolve(JSON.parse(data.toString()));
-                }
+    for (const searchPath of searchPaths) {
+        const artifact = searchArtifacts(artifactsCache, `${searchPath}`);
+        if (artifact !== null) {
+            return new Promise<CompiledContract>((resolve, reject) => {
+                fs.readFile(artifact!, (err, data) => {
+                    if (err) {
+                        reject(err);
+                    }
+                    else {
+                        resolve(JSON.parse(data.toString()));
+                    }
+                });
             });
-        });
+        }
     }
 
     throw new HardhatPluginError("hardhat-starknetjs", `couldn't find artifact for '${contractName}'`);
