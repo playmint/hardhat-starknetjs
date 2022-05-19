@@ -19,6 +19,7 @@ import {
     HardhatRuntimeEnvironment,
     HardhatUserConfig
 } from "hardhat/types";
+import { HardhatPluginError } from "hardhat/plugins";
 import fs from "fs";
 import path from "path";
 
@@ -43,7 +44,7 @@ extendEnvironment((hre) => {
     const networkId = process.env.STARKNETJS_NETWORK || "goerli-alpha";
     const network = hre.config.starknetjs.networks[networkId];
     if (network === undefined) {
-        throw `network '${networkId}' not defined in config`; // TODO plugin error
+        throw new HardhatPluginError("hardhat-starknetjs", `network '${networkId}' not defined in config`);
     }
 
     hre.starknetjs = {
@@ -66,11 +67,7 @@ async function getContractFactory(
     abi?: Abi | undefined): Promise<ContractFactory> {
 
     const artifact = await readArtifact(contractName);
-    if (artifact) {
-        return getContractFactoryFromArtifact(hre, artifact, providerOrAccount, abi);
-    }
-
-    throw `couldn't find artifact for '${contractName}'`; // TODO make this a plugin exception or whatever
+    return getContractFactoryFromArtifact(hre, artifact, providerOrAccount, abi);
 }
 
 function getContractFactoryFromArtifact(
@@ -90,11 +87,7 @@ async function getContractAt(
     abi?: Abi | undefined): Promise<Contract> {
 
     const artifact = await readArtifact(contractName);
-    if (artifact) {
-        return getContractAtFromArtifact(hre, artifact, address, providerOrAccount, abi);
-    }
-
-    throw `couldn't find artifact for '${contractName}'`; // TODO make this a plugin exception or whatever
+    return getContractAtFromArtifact(hre, artifact, address, providerOrAccount, abi);
 }
 
 function getContractAtFromArtifact(
@@ -113,7 +106,7 @@ function searchArtifacts(artifacts: string[], searchPath: string): string | null
     });
 
     if (candidates.length > 1) {
-        throw `'${searchPath}' is ambiguous, could be:\n${candidates.join("\n")}`; // TODO make thsia plugin exception or whatever
+        throw new HardhatPluginError("hardhat-starknetjs", `'${searchPath}' is ambiguous, could be:\n${candidates.join("\n")}`);
     }
 
     if (candidates.length == 1) {
@@ -132,7 +125,7 @@ function getAccount(
     return new Account(provider || hre.starknetjs.provider, address, keyPairOrSigner);
 }
 
-async function readArtifact(contractName: string): Promise<CompiledContract | null> {
+async function readArtifact(contractName: string): Promise<CompiledContract> {
     // TODO cache allArtifacts so we don't scan the dir every time you want an artifact
     const allArtifacts = await getFilesInDirRecursively("artifacts-starknet"); // TODO read from config
 
@@ -160,7 +153,7 @@ async function readArtifact(contractName: string): Promise<CompiledContract | nu
         });
     }
 
-    return null;
+    throw new HardhatPluginError("hardhat-starknetjs", `couldn't find artifact for '${contractName}'`);
 }
 
 async function getFilesInDirRecursively(dir: string): Promise<string[]> {

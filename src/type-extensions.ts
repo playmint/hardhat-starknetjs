@@ -37,7 +37,7 @@ declare module "hardhat/types/config" {
 }
 
 declare module "hardhat/types/runtime"
-{// TODO accounts
+{
     interface HardhatRuntimeEnvironment {
         starknetjs: {
             networkId: string;
@@ -70,7 +70,7 @@ declare module "hardhat/types/runtime"
                 keyPairOrSigner: KeyPair | SignerInterface,
                 provider?: Provider): Account;
 
-            readArtifact(searchPath: string): Promise<CompiledContract | null>;
+            readArtifact(searchPath: string): Promise<CompiledContract>;
         }
     }
 }

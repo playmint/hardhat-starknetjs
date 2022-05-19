@@ -31,7 +31,7 @@ declare module "hardhat/types/runtime" {
             getContractAt(contractName: string, address: string, providerOrAccount?: Provider | Account | undefined, abi?: Abi | undefined): Promise<Contract>;
             getContractAtFromArtifact(artifact: CompiledContract, address: string, providerOrAccount?: Provider | Account | undefined, abi?: Abi | undefined): Contract;
             getAccount(address: string, keyPairOrSigner: KeyPair | SignerInterface, provider?: Provider): Account;
-            readArtifact(searchPath: string): Promise<CompiledContract | null>;
+            readArtifact(searchPath: string): Promise<CompiledContract>;
         };
     }
 }
