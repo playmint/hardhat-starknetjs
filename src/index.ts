@@ -125,19 +125,21 @@ function getAccount(
     return new Account(provider || hre.starknetjs.provider, address, keyPairOrSigner);
 }
 
+let artifactsCache: string[];
 async function readArtifact(contractName: string): Promise<CompiledContract> {
-    // TODO cache allArtifacts so we don't scan the dir every time you want an artifact
-    const allArtifacts = await getFilesInDirRecursively("artifacts-starknet"); // TODO read from config
+    if (artifactsCache === undefined) {
+        artifactsCache = await getFilesInDirRecursively("artifacts-starknet"); // TODO read from config
+    }
 
     const cairoFilename = contractName.endsWith(".cairo") ? contractName : `${contractName}.cairo`;
     const jsonFilename = `${cairoFilename.substring(0, cairoFilename.length - 6)}.json`;
 
     // first try path/file.cairo/file.json
-    let artifact = searchArtifacts(allArtifacts, `${cairoFilename}/${path.basename(jsonFilename)}`);
+    let artifact = searchArtifacts(artifactsCache, `${cairoFilename}/${path.basename(jsonFilename)}`);
 
     // then try path/file.json
     if (!artifact) {
-        artifact = searchArtifacts(allArtifacts, jsonFilename);
+        artifact = searchArtifacts(artifactsCache, jsonFilename);
     }
 
     if (artifact) {
