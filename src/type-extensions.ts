@@ -1,6 +1,6 @@
 import "hardhat/types/config"
 import "hardhat/types/runtime";
-import { Provider, ContractFactory } from "starknet";
+import { Provider, ContractFactory, Account, Abi, CompiledContract, Contract } from "starknet";
 
 
 type StarknetNetworkConfig = {
@@ -32,7 +32,30 @@ declare module "hardhat/types/runtime"
     interface HardhatRuntimeEnvironment {
         starknetjs: {
             provider: Provider;
-            getContractFactory(contractName: string): Promise<ContractFactory>;
+
+            getContractFactory(
+                contractName: string,
+                providerOrAccount?: Provider | Account | undefined,
+                abi?: Abi | undefined): Promise<ContractFactory>;
+
+            getContractFactoryFromArtifact(
+                artifact: CompiledContract,
+                providerOrAccount?: Provider | Account | undefined,
+                abi?: Abi | undefined): ContractFactory;
+
+            getContractAt(
+                contractName: string,
+                address: string,
+                providerOrAccount?: Provider | Account | undefined,
+                abi?: Abi | undefined): Promise<Contract>;
+
+            getContractAtFromArtifact(
+                artifact: CompiledContract,
+                address: string,
+                providerOrAccount?: Provider | Account | undefined,
+                abi?: Abi | undefined): Contract;
+
+            readArtifact(searchPath: string): Promise<CompiledContract | null>;
         }
     }
 }
