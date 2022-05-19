@@ -7,7 +7,12 @@ import path from "path";
 
 
 extendConfig((config: HardhatConfig, userConfig: Readonly<HardhatUserConfig>) => {
-    config.starknetjs = { networks: { "goerli-alpha": { network: "goerli-alpha" } } }; // TODO add mainnet to here
+    config.starknetjs = {
+        networks: {
+            "goerli-alpha": { network: "goerli-alpha" },
+            "mainnet-alpha": { network: "mainnet-alpha" }
+        }
+    };
 
     if (userConfig.starknetjs && userConfig.starknetjs.networks) {
         for (const networkId in userConfig.starknetjs.networks) {
