@@ -33,10 +33,8 @@
         "hardhat": "^2.9.5",
         "typescript": "^4.6.4"
     },
-    "dependencies": {
-        "starknet": "^3.9.0"
-    },
     "peerDependencies": {
-        "hardhat": "^2.9.5"
+        "hardhat": "^2.9.5",
+        "starknet": "^3.9.0"
     }
 }
