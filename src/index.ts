@@ -1,4 +1,4 @@
-import { extendConfig, extendEnvironment } from "hardhat/config";
+import { extendConfig, extendEnvironment, task } from "hardhat/config";
 import { Abi, Account, Provider, ContractFactory, CompiledContract, Contract } from "starknet";
 import "./type-extensions";
 import { HardhatConfig, HardhatRuntimeEnvironment, HardhatUserConfig } from "hardhat/types";
@@ -17,14 +17,16 @@ extendConfig((config: HardhatConfig, userConfig: Readonly<HardhatUserConfig>) =>
 });
 
 extendEnvironment((hre) => {
-    // TODO set selected network with arg or env var or hardhat config ts
-    const network = process.env.STARKNETJS_NETWORK || "goerli-alpha";
-    const networkConfig = hre.config.starknetjs.networks[network];
-    if (networkConfig === undefined) {
-        throw `network '${network}' not defined in config`; // TODO plugin error
+
+    const networkId = process.env.STARKNETJS_NETWORK || "goerli-alpha";
+    const network = hre.config.starknetjs.networks[networkId];
+    if (network === undefined) {
+        throw `network '${networkId}' not defined in config`; // TODO plugin error
     }
+
     hre.starknetjs = {
-        provider: new Provider(networkConfig),
+        networkId: networkId,
+        provider: new Provider(network),
 
         getContractFactory: getContractFactory.bind(null, hre),
         getContractFactoryFromArtifact: getContractFactoryFromArtifact.bind(null, hre),
@@ -153,3 +155,27 @@ async function getFilesInDirRecursively(dir: string): Promise<string[]> {
         });
     });
 }
+
+const STARKNETJS_NETWORK_PARAM = "starknetjsNetwork";
+const STARKNETJS_NETWORK_PARAM_DESC = "Network to use with StarkNet.js";
+
+function setNetworkFromCmdLine(hre: HardhatRuntimeEnvironment, args: any) {
+    const networkId = args[STARKNETJS_NETWORK_PARAM];
+    if (networkId !== undefined) {
+        process.env.STARKNETJS_NETWORK = networkId;
+    }
+}
+
+task("test")
+    .addOptionalParam(STARKNETJS_NETWORK_PARAM, STARKNETJS_NETWORK_PARAM_DESC)
+    .setAction(async (args, hre, runSuper) => {
+        setNetworkFromCmdLine(hre, args);
+        await runSuper();
+    });
+
+task("run")
+    .addOptionalParam(STARKNETJS_NETWORK_PARAM, STARKNETJS_NETWORK_PARAM_DESC)
+    .setAction(async (args, hre, runSuper) => {
+        setNetworkFromCmdLine(hre, args);
+        await runSuper();
+    });

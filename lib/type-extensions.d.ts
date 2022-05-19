@@ -24,6 +24,7 @@ declare module "hardhat/types/config" {
 declare module "hardhat/types/runtime" {
     interface HardhatRuntimeEnvironment {
         starknetjs: {
+            networkId: string;
             provider: Provider;
             getContractFactory(contractName: string, providerOrAccount?: Provider | Account | undefined, abi?: Abi | undefined): Promise<ContractFactory>;
             getContractFactoryFromArtifact(artifact: CompiledContract, providerOrAccount?: Provider | Account | undefined, abi?: Abi | undefined): ContractFactory;

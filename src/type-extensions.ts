@@ -28,9 +28,10 @@ declare module "hardhat/types/config" {
 }
 
 declare module "hardhat/types/runtime"
-{
+{// TODO accounts
     interface HardhatRuntimeEnvironment {
         starknetjs: {
+            networkId: string;
             provider: Provider;
 
             getContractFactory(
