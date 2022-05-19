@@ -1,6 +1,15 @@
 import "hardhat/types/config"
 import "hardhat/types/runtime";
-import { Provider, ContractFactory, Account, Abi, CompiledContract, Contract } from "starknet";
+import {
+    Provider,
+    ContractFactory,
+    Account,
+    Abi,
+    CompiledContract,
+    Contract,
+    KeyPair,
+    SignerInterface
+} from "starknet";
 
 
 type StarknetNetworkConfig = {
@@ -55,6 +64,11 @@ declare module "hardhat/types/runtime"
                 address: string,
                 providerOrAccount?: Provider | Account | undefined,
                 abi?: Abi | undefined): Contract;
+
+            getAccount(
+                address: string,
+                keyPairOrSigner: KeyPair | SignerInterface,
+                provider?: Provider): Account;
 
             readArtifact(searchPath: string): Promise<CompiledContract | null>;
         }

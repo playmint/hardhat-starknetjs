@@ -1,7 +1,24 @@
-import { extendConfig, extendEnvironment, task } from "hardhat/config";
-import { Abi, Account, Provider, ContractFactory, CompiledContract, Contract } from "starknet";
+import {
+    extendConfig,
+    extendEnvironment,
+    task
+} from "hardhat/config";
+import {
+    Abi,
+    Account,
+    Provider,
+    ContractFactory,
+    CompiledContract,
+    Contract,
+    KeyPair,
+    SignerInterface
+} from "starknet";
 import "./type-extensions";
-import { HardhatConfig, HardhatRuntimeEnvironment, HardhatUserConfig } from "hardhat/types";
+import {
+    HardhatConfig,
+    HardhatRuntimeEnvironment,
+    HardhatUserConfig
+} from "hardhat/types";
 import fs from "fs";
 import path from "path";
 
@@ -37,6 +54,7 @@ extendEnvironment((hre) => {
         getContractFactoryFromArtifact: getContractFactoryFromArtifact.bind(null, hre),
         getContractAt: getContractAt.bind(null, hre),
         getContractAtFromArtifact: getContractAtFromArtifact.bind(null, hre),
+        getAccount: getAccount.bind(null, hre),
         readArtifact: readArtifact
     };
 });
@@ -103,6 +121,15 @@ function searchArtifacts(artifacts: string[], searchPath: string): string | null
     }
 
     return null;
+}
+
+function getAccount(
+    hre: HardhatRuntimeEnvironment,
+    address: string,
+    keyPairOrSigner: KeyPair | SignerInterface,
+    provider?: Provider): Account {
+
+    return new Account(provider || hre.starknetjs.provider, address, keyPairOrSigner);
 }
 
 async function readArtifact(contractName: string): Promise<CompiledContract | null> {

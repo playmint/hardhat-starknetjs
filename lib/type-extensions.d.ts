@@ -1,6 +1,6 @@
 import "hardhat/types/config";
 import "hardhat/types/runtime";
-import { Provider, ContractFactory, Account, Abi, CompiledContract, Contract } from "starknet";
+import { Provider, ContractFactory, Account, Abi, CompiledContract, Contract, KeyPair, SignerInterface } from "starknet";
 declare type StarknetNetworkConfig = {
     network: 'mainnet-alpha' | 'goerli-alpha';
 } | {
@@ -30,6 +30,7 @@ declare module "hardhat/types/runtime" {
             getContractFactoryFromArtifact(artifact: CompiledContract, providerOrAccount?: Provider | Account | undefined, abi?: Abi | undefined): ContractFactory;
             getContractAt(contractName: string, address: string, providerOrAccount?: Provider | Account | undefined, abi?: Abi | undefined): Promise<Contract>;
             getContractAtFromArtifact(artifact: CompiledContract, address: string, providerOrAccount?: Provider | Account | undefined, abi?: Abi | undefined): Contract;
+            getAccount(address: string, keyPairOrSigner: KeyPair | SignerInterface, provider?: Provider): Account;
             readArtifact(searchPath: string): Promise<CompiledContract | null>;
         };
     }
