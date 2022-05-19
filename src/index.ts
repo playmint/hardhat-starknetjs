@@ -1,7 +1,7 @@
 import { extendConfig, extendEnvironment } from "hardhat/config";
 import { Abi, Account, Provider, ContractFactory, CompiledContract, Contract } from "starknet";
 import "./type-extensions";
-import { HardhatConfig, HardhatUserConfig } from "hardhat/types";
+import { HardhatConfig, HardhatRuntimeEnvironment, HardhatUserConfig } from "hardhat/types";
 import fs from "fs";
 import path from "path";
 
@@ -17,42 +17,48 @@ extendConfig((config: HardhatConfig, userConfig: Readonly<HardhatUserConfig>) =>
 });
 
 extendEnvironment((hre) => {
-    const network = "goerli-alpha";
     // TODO set selected network with arg or env var or hardhat config ts
+    const network = process.env.STARKNETJS_NETWORK || "goerli-alpha";
     const networkConfig = hre.config.starknetjs.networks[network];
+    if (networkConfig === undefined) {
+        throw `network '${network}' not defined in config`; // TODO plugin error
+    }
     hre.starknetjs = {
         provider: new Provider(networkConfig),
 
-        getContractFactory: getContractFactory,
-        getContractFactoryFromArtifact: getContractFactoryFromArtifact,
-        getContractAt: getContractAt,
-        getContractAtFromArtifact: getContractAtFromArtifact,
+        getContractFactory: getContractFactory.bind(null, hre),
+        getContractFactoryFromArtifact: getContractFactoryFromArtifact.bind(null, hre),
+        getContractAt: getContractAt.bind(null, hre),
+        getContractAtFromArtifact: getContractAtFromArtifact.bind(null, hre),
         readArtifact: readArtifact
     };
 });
 
 async function getContractFactory(
+    hre: HardhatRuntimeEnvironment,
     contractName: string,
     providerOrAccount?: Provider | Account | undefined,
     abi?: Abi | undefined): Promise<ContractFactory> {
 
     const artifact = await readArtifact(contractName);
     if (artifact) {
-        return getContractFactoryFromArtifact(artifact, providerOrAccount, abi);
+        return getContractFactoryFromArtifact(hre, artifact, providerOrAccount, abi);
     }
 
     throw `couldn't find artifact for '${contractName}'`; // TODO make this a plugin exception or whatever
 }
 
 function getContractFactoryFromArtifact(
+    hre: HardhatRuntimeEnvironment,
     artifact: CompiledContract,
     providerOrAccount?: Provider | Account | undefined,
     abi?: Abi | undefined): ContractFactory {
 
-    return new ContractFactory(artifact, providerOrAccount, abi);
+    return new ContractFactory(artifact, providerOrAccount || hre.starknetjs.provider, abi);
 }
 
 async function getContractAt(
+    hre: HardhatRuntimeEnvironment,
     contractName: string,
     address: string,
     providerOrAccount?: Provider | Account | undefined,
@@ -60,19 +66,20 @@ async function getContractAt(
 
     const artifact = await readArtifact(contractName);
     if (artifact) {
-        return getContractAtFromArtifact(artifact, address, providerOrAccount, abi);
+        return getContractAtFromArtifact(hre, artifact, address, providerOrAccount, abi);
     }
 
     throw `couldn't find artifact for '${contractName}'`; // TODO make this a plugin exception or whatever
 }
 
 function getContractAtFromArtifact(
+    hre: HardhatRuntimeEnvironment,
     artifact: CompiledContract,
     address: string,
     providerOrAccount?: Provider | Account | undefined,
     abi?: Abi | undefined): Contract {
 
-    return new Contract(abi ? abi : artifact.abi, address, providerOrAccount);
+    return new Contract(abi ? abi : artifact.abi, address, providerOrAccount || hre.starknetjs.provider);
 }
 
 function searchArtifacts(artifacts: string[], searchPath: string): string | null {
