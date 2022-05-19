@@ -25,6 +25,8 @@ import path from "path";
 
 
 extendConfig((config: HardhatConfig, userConfig: Readonly<HardhatUserConfig>) => {
+    config.paths.starknetArtifacts = userConfig.paths?.starknetArtifacts || "artifacts-starknet";
+
     config.starknetjs = {
         networks: {
             "goerli-alpha": { network: "goerli-alpha" },
@@ -32,7 +34,7 @@ extendConfig((config: HardhatConfig, userConfig: Readonly<HardhatUserConfig>) =>
         }
     };
 
-    if (userConfig.starknetjs && userConfig.starknetjs.networks) {
+    if (userConfig.starknetjs?.networks) {
         for (const networkId in userConfig.starknetjs.networks) {
             config.starknetjs.networks[networkId] = userConfig.starknetjs.networks[networkId];
         }
@@ -56,7 +58,7 @@ extendEnvironment((hre) => {
         getContractAt: getContractAt.bind(null, hre),
         getContractAtFromArtifact: getContractAtFromArtifact.bind(null, hre),
         getAccount: getAccount.bind(null, hre),
-        readArtifact: readArtifact
+        readArtifact: readArtifact.bind(null, hre)
     };
 });
 
@@ -66,7 +68,7 @@ async function getContractFactory(
     providerOrAccount?: Provider | Account | undefined,
     abi?: Abi | undefined): Promise<ContractFactory> {
 
-    const artifact = await readArtifact(contractName);
+    const artifact = await readArtifact(hre, contractName);
     return getContractFactoryFromArtifact(hre, artifact, providerOrAccount, abi);
 }
 
@@ -86,7 +88,7 @@ async function getContractAt(
     providerOrAccount?: Provider | Account | undefined,
     abi?: Abi | undefined): Promise<Contract> {
 
-    const artifact = await readArtifact(contractName);
+    const artifact = await readArtifact(hre, contractName);
     return getContractAtFromArtifact(hre, artifact, address, providerOrAccount, abi);
 }
 
@@ -126,9 +128,9 @@ function getAccount(
 }
 
 let artifactsCache: string[];
-async function readArtifact(contractName: string): Promise<CompiledContract> {
+async function readArtifact(hre: HardhatRuntimeEnvironment, contractName: string): Promise<CompiledContract> {
     if (artifactsCache === undefined) {
-        artifactsCache = await getFilesInDirRecursively("artifacts-starknet"); // TODO read from config
+        artifactsCache = await getFilesInDirRecursively(hre.config.paths.starknetArtifacts);
     }
 
     const cairoFilename = contractName.endsWith(".cairo") ? contractName : `${contractName}.cairo`;

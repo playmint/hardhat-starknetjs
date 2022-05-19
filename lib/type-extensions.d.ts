@@ -10,6 +10,12 @@ declare type StarknetNetworksConfig = {
     [id: string]: StarknetNetworkConfig;
 };
 declare module "hardhat/types/config" {
+    interface ProjectPathsUserConfig {
+        starknetArtifacts?: string;
+    }
+    interface ProjectPathsConfig {
+        starknetArtifacts: string;
+    }
     interface HardhatUserConfig {
         starknetjs?: {
             networks?: StarknetNetworksConfig;
