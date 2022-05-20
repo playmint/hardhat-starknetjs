@@ -11,7 +11,8 @@ import {
     CompiledContract,
     Contract,
     KeyPair,
-    SignerInterface
+    SignerInterface,
+    json
 } from "starknet";
 import "./type-extensions";
 import {
@@ -157,7 +158,7 @@ async function readArtifact(hre: HardhatRuntimeEnvironment, contractName: string
                         reject(err);
                     }
                     else {
-                        resolve(JSON.parse(data.toString()));
+                        resolve(json.parse(data.toString("ascii")));
                     }
                 });
             });
