@@ -2,7 +2,7 @@
     "name": "@playmint/hardhat-starknetjs",
     "author": "Playmint",
     "license": "CC0-1.0",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "description": "Hardhat plugin to integrate StarkNet.js",
     "homepage": "https://github.com/playmint/hardhat-starknetjs",
     "repository": "github:playmint/hardhat-starknetjs",
