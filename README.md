@@ -2,7 +2,7 @@
 
 [![NPM Package](https://img.shields.io/npm/v/@playmint/hardhat-starknetjs.svg?style=flat-square)](https://www.npmjs.com/package/@playmint/hardhat-starknetjs)
 ---
-#hardhat-starknetjs
+# hardhat-starknetjs
 [Hardhat](https://hardhat.org/) plugin for integration with [StarkNet.js](https://www.starknetjs.com/).
 
 ## What
