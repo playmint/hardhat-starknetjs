@@ -51,8 +51,8 @@ extendEnvironment((hre) => {
     }
 
     hre.starknetjs = {
-        networkId: networkId,
-        provider: new Provider(network),
+        networkId: "goerli-alpha",
+        provider: new Provider({ network: "goerli-alpha" }),
 
         getContractFactory: getContractFactory.bind(null, hre),
         getContractFactoryFromArtifact: getContractFactoryFromArtifact.bind(null, hre),
@@ -61,7 +61,20 @@ extendEnvironment((hre) => {
         getAccount: getAccount.bind(null, hre),
         readArtifact: readArtifact.bind(null, hre)
     };
+
+    setNetworkFromEnv(hre);
 });
+
+function setNetworkFromEnv(hre: HardhatRuntimeEnvironment) {
+    const networkId = process.env.STARKNETJS_NETWORK || "goerli-alpha";
+    const network = hre.config.starknetjs.networks[networkId];
+    if (network === undefined) {
+        throw new HardhatPluginError("hardhat-starknetjs", `network '${networkId}' not defined in config`);
+    }
+
+    hre.starknetjs.networkId = networkId;
+    hre.starknetjs.provider = new Provider(network);
+}
 
 async function getContractFactory(
     hre: HardhatRuntimeEnvironment,
@@ -200,6 +213,8 @@ function setNetworkFromCmdLine(hre: HardhatRuntimeEnvironment, args: any) {
     const networkId = args[STARKNETJS_NETWORK_PARAM];
     if (networkId !== undefined) {
         process.env.STARKNETJS_NETWORK = networkId;
+
+        setNetworkFromEnv(hre);
     }
 }
 
